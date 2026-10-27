@@ -37,11 +37,11 @@ export function Sidebar(props: SidebarProps) {
 
   return (
     <aside className="flex h-full w-drawer shrink-0 flex-col rounded-panel bg-surface lg:w-sidebar-lg xl:w-sidebar">
-      <div className="px-7.5 pt-7.5">
+      <div className="px-7.5 pt-6.75">
         <p className="logo-type text-26 leading-none text-ink">CHAT A.I+</p>
       </div>
 
-      <div className="mt-11.5 flex items-center gap-2.5 px-7.5">
+      <div className="mt-11.75 flex items-center gap-2.5 px-7.5">
         <Button onClick={onNewChat} className="flex-1 gap-2.5">
           <Plus size={ICON_SIZE.md} strokeWidth={1.75} aria-hidden />
           New chat

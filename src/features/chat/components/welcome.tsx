@@ -1,4 +1,4 @@
-import { ArrowRight, Globe, TriangleAlert, Zap } from "lucide-react";
+import { Globe, MoveRight, TriangleAlert, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ICON_SIZE } from "@/components/ui/icon";
 import type { SuggestionColumnDto } from "@/lib/types";
@@ -55,9 +55,9 @@ export function Welcome({ columns, onPick }: { columns: SuggestionColumnDto[]; o
                     <span className="mt-2 text-18 leading-tight font-medium text-ink-2 @2xl:mt-2.5 @2xl:text-22">
                       {card.title}
                     </span>
-                    <span className="mt-1.5 flex items-center justify-between gap-2 text-13 text-ink-2">
+                    <span className="mt-1.5 flex items-center justify-between gap-2 text-14 text-ink-2">
                       {card.prompt}
-                      <ArrowRight size={ICON_SIZE.md} strokeWidth={1.5} className="shrink-0 @2xl:mr-2.5" aria-hidden />
+                      <MoveRight size={ICON_SIZE.lg} strokeWidth={1.5} className="shrink-0" aria-hidden />
                     </span>
                   </Button>
                 ))}

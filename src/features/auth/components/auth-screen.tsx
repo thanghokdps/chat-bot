@@ -79,7 +79,7 @@ export function AuthScreen({ mode, providers }: { mode: AuthMode; providers: { g
         <div className="w-full max-w-130 pt-auth-top pb-12">
           <p className="logo-type mb-7 text-center text-22 leading-none text-ink lg:hidden">CHAT A.I+</p>
           <h1 className="text-center text-30 leading-tight font-medium text-ink sm:text-38">{copy.title}</h1>
-          <p className="mt-3.5 text-center text-15 text-ink-3">{copy.subtitle}</p>
+          <p className="mt-3.5 text-center text-16 text-ink-3">{copy.subtitle}</p>
 
           <form onSubmit={submit} className="mt-9 sm:mt-12.5">
             <Label htmlFor="email">Email Address*</Label>
@@ -106,7 +106,7 @@ export function AuthScreen({ mode, providers }: { mode: AuthMode; providers: { g
             />
 
             {mode === "sign-up" && (
-              <p className="mt-7.75 text-legal leading-4.75 text-ink-2 sm:pr-6">
+              <p className="mt-7.75 text-14 leading-4.75 text-ink-2 sm:pr-6">
                 By registering for an account, you are consenting to our{" "}
                 <Link href="/terms" className="text-primary underline">
                   Terms of Service
@@ -129,7 +129,7 @@ export function AuthScreen({ mode, providers }: { mode: AuthMode; providers: { g
             </Button>
           </form>
 
-          <p className="mt-5.5 text-center text-15 text-ink-2">
+          <p className="mt-5.5 text-center text-16 leading-5.5 text-ink-2">
             {copy.switchText}{" "}
             <Link href={copy.switchHref} className="text-primary">
               {copy.switchLink}
