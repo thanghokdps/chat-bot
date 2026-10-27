@@ -106,15 +106,17 @@ Questions 1–3 each took the developer 4–36 seconds.
 
 This run fed its lessons back into the kit (kit PRs #36, #37, #39). The next ticket runs with:
 
-| Area           | Current behaviour                                                                                                                                     |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Building       | Each slice goes through the specialist skill named in `plan.md`; a real chat turn is checked end to end by `/agent-verify-turn`, not only by hand.    |
-| Cost           | The strongest model plans and reviews; code is written by a cheaper model from a precise brief.                                                       |
-| Lint           | Files change only through the edit tools, so the repo's lint hook runs on every edit.                                                                 |
-| High-risk work | One process: the contract in `docs/tickets/<id>/`, the developer's approval, then `/security-review` and `/code-review` before the PR.                |
-| Merging        | `main` requires a PR and a green `checks` job. Before opening a PR, the kit checks that CI has the secrets it needs and that the branch is protected. |
-| New tickets    | `/ticket` searches the code first, so it does not propose work that already exists.                                                                   |
-| Setup          | Remotes use the machine's SSH form; personal memory files are gitignored; the branch guard only blocks real pushes to protected branches.             |
-| Agent writes   | The assistant may propose a change the user applies through an existing authenticated API (the design this ticket used).                              |
+| Area           | Current behaviour                                                                                                                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Building       | Each slice goes through the specialist skill named in `plan.md`; a real chat turn is checked end to end by `/agent-verify-turn`, not only by hand.                                                                        |
+| Cost           | The strongest model plans and reviews; code is written by a cheaper model from a precise brief.                                                                                                                           |
+| Lint           | Files change only through the edit tools, so the repo's lint hook runs on every edit.                                                                                                                                     |
+| High-risk work | One process: the contract in `docs/tickets/<id>/`, the developer's approval, then `/security-review` and `/code-review` before the PR.                                                                                    |
+| Merging        | `main` requires a PR and a green `checks` job. Before opening a PR, the kit checks that CI has the secrets it needs and that the branch is protected. Without an OpenAI key, CI skips evals with a warning (chat-bot #3). |
+| New tickets    | `/ticket` searches the code first, so it does not propose work that already exists.                                                                                                                                       |
+| Git safety     | The guard reacts only to real git commands: it blocks commits and pushes to `main` and environment branches (except the first commit of an empty repo) and adds no delay.                                                 |
+| Setup          | New remotes use SSH; the developer's email file is gitignored; the installer shows the right versions and warns when the GitHub and GitLab copies differ; `/sync-remote` ends with a summary.                             |
+| Agent writes   | The rule tells two cases apart: the agent writing itself needs a server-side approval step; the assistant suggesting a change the user's click applies does not.                                                          |
+| Sessions       | A person opens the Claude Code session and types `/ticket <id>`; a remote session cannot open one.                                                                                                                        |
 
 The merging row is enforced by GitHub. The building, cost, lint and high-risk rows are instructions to the model, so they show their effect on the next ticket run.
