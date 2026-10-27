@@ -28,7 +28,7 @@ Identity: Better Auth session cookie (HttpOnly, Secure, SameSite) → verified i
 Checkpoints: run-scoped · History: `messages` tree is the source of truth · Memory: none
 Models: OpenAI flagship → `-mini` fallback (429/5xx only); `-mini`/`-nano` for titles and eval judge; Pro → higher tier. IDs in env, verified against `/v1/models` at scaffold
 Tracing: Langfuse behind `TRACING_ENABLED`, PII masked, user ids HMAC-hashed
-Evals: must-pass — design prompts structured, follow-up context, limitations honesty, harmful refusal, identity/system-prompt; cheap-model judge; CI on `src/agent/**` and `evals/**` with a baseline gate
+Evals: must-pass — design prompts structured, follow-up context, limitations honesty, harmful refusal, identity/system-prompt; cheap-model judge; CI on `src/agent/**` and `evals/**` with a baseline gate, skipped with a warning while the repo has no `OPENAI_API_KEY` secret (then `pnpm evals` runs locally before merge)
 
 ## Decisions
 
