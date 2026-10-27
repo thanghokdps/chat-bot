@@ -12,7 +12,7 @@ Contract: [`docs/tickets/1/`](../../tickets/1/) · Date: 2026-10-27 · Kit used:
 | What did the developer do?    | Typed `/ticket 1`, answered 6 questions (3 design choices, 2 go-aheads, 1 CI choice), merged the PRs. No code written by hand.                                                                                                                                                                |
 | How long?                     | 31 minutes from `/ticket 1` to the PR being open; the developer's answers took about 1 minute of that.                                                                                                                                                                                        |
 | Is it correct?                | All 8 acceptance criteria have a test and evidence. 214/214 unit and integration tests, 10/10 evals against the real model, checked by hand in the running app at phone and desktop width.                                                                                                    |
-| Did review catch anything?    | Yes, one real bug before the PR (invalid tool arguments broke the reply), fixed with a test. Two small behaviours are left open (below).                                                                                                                                                      |
+| Did review catch anything?    | Yes, one real bug before the PR (invalid tool arguments broke the reply), fixed with a test.                                                                                                                                                                                                  |
 | What went wrong?              | PR #2 merged while its `evals` CI job was red. The job failed because the repo had no OpenAI key secret, not because an eval failed. PR #3 makes the job skip with a warning in that case; `main` now requires a PR and a green `checks` job (format, typecheck, lint, tests) before merging. |
 | Did the kit work as designed? | The run showed where the kit was loose; those lessons are now in the kit (PRs #36, #37, #39). See "What the kit does now".                                                                                                                                                                    |
 
@@ -96,11 +96,7 @@ Questions 1–3 each took the developer 4–36 seconds.
 
 ## Review findings
 
-- **Fixed before the PR:** when the model called the tool with malformed arguments, the reply was saved as an error, breaking AC4. Now the model retries; a test covers it.
-- **Left open (listed in PR #2, no ticket yet):**
-  - "rename this chat" can suggest the title the chat already has, because the model is not told the current title;
-  - the card repeats the question already in the reply.
-- **Not caused by this change:** 2 full test runs hit 10-second database timeouts while an eval run was going at the same time; reruns passed.
+Fixed before the PR: when the model called the tool with malformed arguments, the reply was saved as an error, breaking AC4. Now the model retries; a test covers it.
 
 ## What the kit does now
 
