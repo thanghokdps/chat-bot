@@ -117,4 +117,4 @@ This run fed its lessons back into the kit (kit PRs #36, #37, #39). The next tic
 | Setup          | Remotes use the machine's SSH form; personal memory files are gitignored; the branch guard only blocks real pushes to protected branches.             |
 | Agent writes   | The assistant may propose a change the user applies through an existing authenticated API (the design this ticket used).                              |
 
-The building, cost and lint rows are instructions to the model, so they show their effect on the next ticket run.
+The merging row is enforced by GitHub. The building, cost, lint and high-risk rows are instructions to the model, so they show their effect on the next ticket run.
