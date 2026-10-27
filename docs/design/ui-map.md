@@ -24,8 +24,8 @@ Decisions marked *default* were made without a frame (owner said: proceed withou
 | Assistant message | `conversation-*.png` (label, markdown, toolbar, Regenerate) |
 | Streaming | *default*: answer grows with a blinking caret; Send, Edit and Regenerate disabled; no Stop button (ADR 0001) |
 | Thinking | *default*: assistant label + three pulsing dots until the first token |
-| Tool running / done / failed | not applicable — 0 tools (ADR 0001) |
-| Confirm card | not applicable — no writes by the agent |
+| Tool running / done / failed | not applicable — the one tool returns directly with fixed copy (ADR 0001 decision 21) |
+| Confirm card | `RenameCard` (`features/chat/components/rename-card.tsx`) under the last answer; `/design-states?state=rename-proposal`, `rename-proposal-long` — not in the Figma file |
 | Suggestions after an answer | *skip* — not in the design |
 | Error / offline / unauthorised | *default*: notice pill above the composer with the server's fixed copy; failed answer shows its fixed text + Regenerate; 401 → `/sign-in` |
 | Long conversation | `conversation-*.png` — content scrolls under the composer and fades out |

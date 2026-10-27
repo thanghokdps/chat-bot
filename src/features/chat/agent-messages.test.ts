@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ThreadMessageDto } from "@/lib/types";
-import { conversationIdFromPath, fromAgent, isNotice, toAgentMessage } from "./agent-messages";
+import { conversationIdFromPath, fromAgent, isNotice, isRenameProposal, toAgentMessage } from "./agent-messages";
 
 const stored: ThreadMessageDto = {
   id: "a1",
@@ -44,5 +44,14 @@ describe("chat helpers", () => {
       ["u2", "complete", null],
       ["a2", "streaming", null],
     ]);
+  });
+});
+
+describe("isRenameProposal", () => {
+  it("accepts a conversation id and a title, nothing else", () => {
+    expect(isRenameProposal({ conversationId: "c1", title: "Q4 planning" })).toBe(true);
+    expect(isRenameProposal({ conversationId: "c1" })).toBe(false);
+    expect(isRenameProposal({ conversationId: 1, title: "x" })).toBe(false);
+    expect(isRenameProposal(null)).toBe(false);
   });
 });

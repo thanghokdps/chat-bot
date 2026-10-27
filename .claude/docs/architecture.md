@@ -1,6 +1,6 @@
 # Architecture
 
-General-purpose AI chat assistant ("CHAT A.I+") from the Figma community file: sign up, chat with streaming answers, edit/regenerate, vote, conversation sidebar with search, background setting, daily plan limits. Single Next.js app (L1) with CopilotKit v2 over AG-UI and one LangChain `createAgent` agent with no tools. Full rationale: `docs/adr/0001-agent-architecture.md`.
+General-purpose AI chat assistant ("CHAT A.I+") from the Figma community file: sign up, chat with streaming answers, edit/regenerate, vote, conversation sidebar with search, background setting, daily plan limits. Single Next.js app (L1) with CopilotKit v2 over AG-UI and one LangChain `createAgent` agent with one validate-only tool (`propose_rename`: the user confirms a rename on a card, which calls the sidebar's PATCH). Full rationale: `docs/adr/0001-agent-architecture.md`.
 
 ## Layers
 

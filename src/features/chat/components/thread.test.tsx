@@ -77,4 +77,21 @@ describe("Thread", () => {
     expect(screen.getByRole("button", { name: "Edit prompt" }).hasAttribute("disabled")).toBe(true);
     expect(screen.queryByRole("button", { name: /regenerate/i })).toBeNull();
   });
+
+  it("renders its children after the last exchange", () => {
+    render(
+      <Thread
+        messages={[m("u1", "user", "a"), m("a1", "assistant", "b")]}
+        viewer={viewer}
+        isRunning={false}
+        onEdit={vi.fn()}
+        onRegenerate={vi.fn()}
+        onRate={vi.fn()}
+      >
+        <p>card slot</p>
+      </Thread>,
+    );
+    const slot = screen.getByText("card slot");
+    expect(screen.getByText("b").compareDocumentPosition(slot) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
 });

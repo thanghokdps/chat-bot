@@ -40,6 +40,12 @@ export interface ViewerDto {
   image: string | null;
 }
 
+/** CUSTOM `rename_proposal` from a turn: a title the user still has to confirm (ticket 1). */
+export interface RenameProposal {
+  conversationId: string;
+  title: string;
+}
+
 export interface Notice {
   code: string;
   message: string;

@@ -138,6 +138,12 @@ export const FIXTURE_STREAMING: ThreadMessageDto[] = [
   ),
 ];
 
+export const FIXTURE_RENAME: ThreadMessageDto[] = [
+  ...FIXTURE_THREAD,
+  msg("m5", "user", "call this chat Q4 planning"),
+  msg("m6", "assistant", "Rename this chat to “Q4 planning”?"),
+];
+
 export const FIXTURE_THINKING: ThreadMessageDto[] = [msg("m1", "user", "What is use of that chatbot ?")];
 
 export const FIXTURE_ERROR: ThreadMessageDto[] = [

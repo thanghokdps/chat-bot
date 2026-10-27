@@ -5,13 +5,14 @@ import { FIXTURE_SUGGESTIONS } from "@/dev/fixtures";
 import type { ConversationItem } from "@/lib/types";
 
 const push = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push }), usePathname: () => "/" }));
+const pathname = vi.fn(() => "/");
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }), usePathname: () => pathname() }));
 vi.mock("@copilotkit/react-core/v2", () => ({ UseAgentUpdate: {}, useAgent: vi.fn() }));
 const api = {
   list: vi.fn(async (): Promise<ConversationItem[]> => []),
   create: vi.fn(async () => "new-id"),
   clear: vi.fn(async () => ({ cleared: 0 })),
-  rename: vi.fn(),
+  rename: vi.fn(async (_id: string, title: string) => ({ title })),
   remove: vi.fn(),
 };
 vi.mock("@/features/conversations", async (importOriginal) => ({
@@ -22,6 +23,14 @@ const update = vi.fn(async () => ({ background: "pink" }));
 vi.mock("@/features/settings", async (importOriginal) => ({
   ...(await importOriginal<object>()),
   settingsApi: { update },
+}));
+let threadPaneProps: { onRename: (title: string) => Promise<void> } | null = null;
+vi.mock("@/features/chat", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  ThreadPane: (props: { onRename: (title: string) => Promise<void> }) => {
+    threadPaneProps = props;
+    return null;
+  },
 }));
 vi.mock("@/features/auth", () => ({ authClient: { signOut: vi.fn() } }));
 
@@ -42,6 +51,17 @@ describe("ChatApp", () => {
     fireEvent.click(screen.getByRole("button", { name: /Make a search engine/ }));
     await waitFor(() => expect(push).toHaveBeenCalledWith("/c/new-id"));
     expect(api.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("renames the open conversation through the sidebar API and refreshes the list", async () => {
+    const id = "0f1e2d3c-4b5a-4987-8654-3210fedcba98";
+    pathname.mockReturnValue(`/c/${id}`);
+    renderApp();
+    await waitFor(() => expect(api.list).toHaveBeenCalledTimes(1));
+    await threadPaneProps?.onRename("Q4 planning");
+    expect(api.rename).toHaveBeenCalledWith(id, "Q4 planning");
+    expect(api.list).toHaveBeenCalledTimes(2);
+    pathname.mockReturnValue("/");
   });
 
   it("answers Upgrade with the coming-soon notice", () => {

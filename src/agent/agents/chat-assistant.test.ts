@@ -1,6 +1,7 @@
 import type { BaseMessage } from "@langchain/core/messages";
 import type { ChatGenerationChunk } from "@langchain/core/outputs";
 import { FakeListChatModel } from "@langchain/core/utils/testing";
+import { FakeToolCallingModel } from "langchain";
 import { describe, expect, it } from "vitest";
 import { SYSTEM_PROMPT } from "../prompt";
 import { type AnswerChunk, buildStreamAnswer, type HistoryMessage } from "./chat-assistant";
@@ -74,5 +75,42 @@ describe("streamAnswer", () => {
       fallback: { name: "fallback", model: new FakeListChatModel({ responses: ["should not run"] }) },
     }));
     await expect(collect(stream(args))).rejects.toThrow("HTTP 400");
+  });
+
+  it.each([
+    ["  Q4 planning ", "Rename this chat to “Q4 planning”?", { title: "Q4 planning" }],
+    ["a".repeat(81), "Chat titles must be 1–80 characters. Try a different title.", undefined],
+  ])("answers a rename to %j with fixed copy and no second model call", async (title, reply, proposal) => {
+    const model = new FakeToolCallingModel({
+      toolCalls: [[{ name: "propose_rename", args: { title }, id: "call-1" }], []],
+    });
+    const stream = buildStreamAnswer(() => ({
+      primary: { name: "primary", model },
+      fallback: { name: "fallback", model: new FakeListChatModel({ responses: ["unused"] }) },
+    }));
+    const chunks = await collect(stream(args));
+
+    expect(chunks.map((c) => c.delta ?? "").join("")).toBe(reply);
+    expect(chunks.find((c) => c.proposal)?.proposal).toEqual(proposal);
+    expect(chunks.at(-1)?.final?.model).toBe("primary");
+    expect(model.index).toBe(1);
+  });
+
+  it("lets the model retry after schema-invalid args instead of failing the turn", async () => {
+    const model = new FakeToolCallingModel({
+      toolCalls: [
+        [{ name: "propose_rename", args: {}, id: "call-1" }],
+        [{ name: "propose_rename", args: { title: "Q4 planning" }, id: "call-2" }],
+        [],
+      ],
+    });
+    const stream = buildStreamAnswer(() => ({
+      primary: { name: "primary", model },
+      fallback: { name: "fallback", model: new FakeListChatModel({ responses: ["unused"] }) },
+    }));
+    const chunks = await collect(stream(args));
+
+    expect(chunks.map((c) => c.delta ?? "").join("")).toBe("Rename this chat to “Q4 planning”?");
+    expect(chunks.find((c) => c.proposal)?.proposal).toEqual({ title: "Q4 planning" });
   });
 });

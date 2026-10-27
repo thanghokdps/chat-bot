@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ThreadMessageDto, ViewerDto } from "@/lib/types";
 import { AnswerBlock } from "./answer-block";
 import { PromptLine } from "./prompt-line";
@@ -9,6 +10,8 @@ export interface ThreadProps {
   onEdit: (messageId: string, content: string) => void;
   onRegenerate: (messageId: string) => void;
   onRate: (messageId: string, rating: 1 | -1 | null) => void;
+  /** Shown under the last exchange, inside the padding the composer overlaps. */
+  children?: ReactNode;
 }
 
 export interface Exchange {
@@ -29,7 +32,7 @@ export function toExchanges(messages: ThreadMessageDto[]): Exchange[] {
   return out;
 }
 
-export function Thread({ messages, viewer, isRunning, onEdit, onRegenerate, onRate }: ThreadProps) {
+export function Thread({ messages, viewer, isRunning, onEdit, onRegenerate, onRate, children }: ThreadProps) {
   const exchanges = toExchanges(messages);
   return (
     <div className="mx-auto w-full max-w-238 pt-3 pb-37.5 @3xl:pt-13.75 @3xl:pb-55">
@@ -48,6 +51,7 @@ export function Thread({ messages, viewer, isRunning, onEdit, onRegenerate, onRa
           />
         </article>
       ))}
+      {children}
     </div>
   );
 }
