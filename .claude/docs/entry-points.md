@@ -31,4 +31,4 @@
 
 ## CI
 
-`.github/workflows/ci.yml`: format:check → typecheck → lint → test on every PR; evals when `src/agent/**` or `evals/**` change (needs `OPENAI_API_KEY` secret and `MODEL_*` variables).
+`.github/workflows/ci.yml`: format:check → typecheck → lint → test on every PR; evals when `src/agent/**` or `evals/**` change (needs `OPENAI_API_KEY` secret and `MODEL_*` variables; without the secret the job skips with an "Evals skipped" warning, so run `pnpm evals` locally).
