@@ -1,13 +1,14 @@
 "use client";
 
 import { AuthScreen } from "@/features/auth";
-import { ChatScroll, Composer, Thread, Welcome } from "@/features/chat";
+import { ChatScroll, Composer, RenameCard, Thread, Welcome } from "@/features/chat";
 import { AppFrame } from "@/features/shell";
 import type { Background, Notice, ThreadMessageDto } from "@/lib/types";
 import {
   FIXTURE_ACTIVE_ID,
   FIXTURE_CONVERSATIONS,
   FIXTURE_ERROR,
+  FIXTURE_RENAME,
   FIXTURE_STREAMING,
   FIXTURE_SUGGESTIONS,
   FIXTURE_THINKING,
@@ -23,6 +24,7 @@ interface ChatState {
   messages: ThreadMessageDto[] | null;
   isRunning?: boolean;
   notice?: Notice;
+  renameTitle?: string;
 }
 
 export const STATES: Record<string, ChatState | "sign-up" | "sign-in" | "primitives"> = {
@@ -36,6 +38,12 @@ export const STATES: Record<string, ChatState | "sign-up" | "sign-in" | "primiti
   "conversation-green": { background: "green", messages: FIXTURE_THREAD },
   thinking: { background: "blue", messages: FIXTURE_THINKING, isRunning: true },
   streaming: { background: "blue", messages: FIXTURE_STREAMING, isRunning: true },
+  "rename-proposal": { background: "blue", messages: FIXTURE_RENAME, renameTitle: "Q4 planning" },
+  "rename-proposal-long": {
+    background: "blue",
+    messages: FIXTURE_RENAME,
+    renameTitle: "Quarterly planning notes for the marketing, sales and product teams across EMEA",
+  },
   error: {
     background: "blue",
     messages: FIXTURE_ERROR,
@@ -82,7 +90,11 @@ export function DesignStates({ state }: { state: string }) {
             onEdit={noop}
             onRegenerate={noop}
             onRate={noop}
-          />
+          >
+            {config.renameTitle && (
+              <RenameCard title={config.renameTitle} isSaving={false} onConfirm={noop} onCancel={noop} />
+            )}
+          </Thread>
         ) : (
           <Welcome columns={FIXTURE_SUGGESTIONS} onPick={noop} />
         )}

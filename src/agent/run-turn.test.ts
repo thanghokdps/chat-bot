@@ -91,6 +91,36 @@ describe("runTurn", () => {
     expect(thread?.title).toBe("Create Chatbot GPT");
   });
 
+  it("proposes a rename for this conversation without changing its title", async () => {
+    const id = await createConversation(db, USER);
+    const copy = "Rename this chat to “Q4 planning”?";
+    const events = await run(
+      USER,
+      input(id, "call this chat Q4 planning"),
+      deps(scripted([{ delta: copy }, { proposal: { title: "Q4 planning" } }, { final: { model: "gpt-test" } }])),
+    );
+
+    const proposal = events.findIndex((e) => e.type === EventType.CUSTOM && e.name === "rename_proposal");
+    expect(events[proposal]).toMatchObject({ value: { conversationId: id, title: "Q4 planning" } });
+    expect(proposal).toBeLessThan(events.findIndex((e) => e.type === EventType.TEXT_MESSAGE_END));
+    const thread = await getThread(db, USER, id);
+    expect(thread?.title).not.toBe("Q4 planning");
+    expect(thread?.messages.at(-1)).toMatchObject({ role: "assistant", content: copy, status: "complete" });
+  });
+
+  it("answers an invalid title with a complete reply and no proposal", async () => {
+    const id = await createConversation(db, USER);
+    const copy = "Chat titles must be 1–80 characters. Try a different title.";
+    const events = await run(
+      USER,
+      input(id, "rename to ..."),
+      deps(scripted([{ delta: copy }, { final: { model: "m" } }])),
+    );
+
+    expect(events.some((e) => e.type === EventType.CUSTOM && e.name === "rename_proposal")).toBe(false);
+    expect((await getThread(db, USER, id))?.messages.at(-1)).toMatchObject({ content: copy, status: "complete" });
+  });
+
   it("sends the whole branch as history on a follow-up, and ignores client-sent history", async () => {
     const id = await createConversation(db, USER);
     await run(USER, input(id, "Create a chatbot"), deps(reply("Steps 1-4")));

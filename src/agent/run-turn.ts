@@ -164,6 +164,14 @@ export async function* runTurn(ctx: TurnContext, deps: TurnDeps): AsyncGenerator
           text += chunk.delta;
           yield { type: EventType.TEXT_MESSAGE_CONTENT, messageId: assistantMessageId, delta: chunk.delta };
         }
+        if (chunk.proposal) {
+          // Bound to this turn's thread, which acquireRun has ownership-checked; the client applies it nowhere else.
+          yield {
+            type: EventType.CUSTOM,
+            name: "rename_proposal",
+            value: { conversationId, title: chunk.proposal.title },
+          };
+        }
         if (chunk.final) {
           await finishMessage(db, assistantMessageId, { content: text, status: "complete", ...chunk.final });
         }

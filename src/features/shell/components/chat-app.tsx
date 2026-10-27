@@ -91,6 +91,7 @@ export function ChatApp({
           pendingPrompt={pendingPrompt}
           onPendingConsumed={() => setPendingPrompt(null)}
           onTurnFinished={refresh}
+          onRename={(title) => conversationsApi.rename(activeId, title).then(refresh)}
         />
       ) : (
         <>

@@ -38,7 +38,11 @@ const { ThreadPane } = await import("./thread-pane");
 
 const viewer = { name: "Ann", image: null };
 function renderPane(pendingPrompt: string | null = null) {
-  const handlers = { onPendingConsumed: vi.fn(), onTurnFinished: vi.fn() };
+  const handlers = {
+    onPendingConsumed: vi.fn(),
+    onTurnFinished: vi.fn(),
+    onRename: vi.fn(async (_title: string) => undefined),
+  };
   render(<ThreadPane conversationId="c1" viewer={viewer} pendingPrompt={pendingPrompt} {...handlers} />);
   return handlers;
 }
@@ -86,6 +90,51 @@ describe("ThreadPane", () => {
     renderPane("again");
     expect(await screen.findByRole("status")).toBeTruthy();
     expect(screen.getByText("Please wait")).toBeTruthy();
+  });
+
+  function proposeDuringTurn(conversationId = "c1") {
+    agent.runAgent.mockImplementationOnce(async (_p, subscriber) => {
+      subscriber?.onCustomEvent?.({
+        event: { name: "rename_proposal", value: { conversationId, title: "Q4 planning" } },
+      });
+    });
+  }
+
+  it("shows the rename card after a turn and renames only on Confirm", async () => {
+    proposeDuringTurn();
+    const { onRename } = renderPane("call this chat Q4 planning");
+    const card = await screen.findByRole("region", { name: "Rename this chat" });
+    expect(card.textContent).toContain("“Q4 planning”");
+    expect(onRename).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
+    await waitFor(() => expect(screen.queryByRole("region", { name: "Rename this chat" })).toBeNull());
+    expect(onRename).toHaveBeenCalledExactlyOnceWith("Q4 planning");
+  });
+
+  it("closes the card on Cancel without renaming", async () => {
+    proposeDuringTurn();
+    const { onRename } = renderPane("rename this chat");
+    await screen.findByRole("region", { name: "Rename this chat" });
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("region", { name: "Rename this chat" })).toBeNull();
+    expect(onRename).not.toHaveBeenCalled();
+  });
+
+  it("ignores a proposal for another conversation", async () => {
+    proposeDuringTurn("c2");
+    const { onTurnFinished } = renderPane("rename this chat");
+    await waitFor(() => expect(onTurnFinished).toHaveBeenCalled());
+    expect(screen.queryByRole("region", { name: "Rename this chat" })).toBeNull();
+  });
+
+  it("keeps the card and shows a notice when the rename fails", async () => {
+    proposeDuringTurn();
+    const { onRename } = renderPane("rename this chat");
+    onRename.mockRejectedValueOnce(new Error("500"));
+    fireEvent.click(await screen.findByRole("button", { name: "Confirm" }));
+    expect(await screen.findByText("Could not rename this chat. Please try again.")).toBeTruthy();
+    expect(screen.getByRole("region", { name: "Rename this chat" })).toBeTruthy();
   });
 
   it("rolls a vote back when saving it fails", async () => {

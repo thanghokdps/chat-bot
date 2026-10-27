@@ -1,5 +1,5 @@
 import type { Message } from "@ag-ui/core";
-import type { Notice, ThreadMessageDto } from "@/lib/types";
+import type { Notice, RenameProposal, ThreadMessageDto } from "@/lib/types";
 
 export function conversationIdFromPath(pathname: string): string | null {
   const match = /^\/c\/([0-9a-f-]{36})$/i.exec(pathname);
@@ -12,6 +12,15 @@ export function isNotice(value: unknown): value is Notice {
     value !== null &&
     typeof Reflect.get(value, "code") === "string" &&
     typeof Reflect.get(value, "message") === "string"
+  );
+}
+
+export function isRenameProposal(value: unknown): value is RenameProposal {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof Reflect.get(value, "conversationId") === "string" &&
+    typeof Reflect.get(value, "title") === "string"
   );
 }
 
