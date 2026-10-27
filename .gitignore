@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+.env
+.env*.local
+.DS_Store
+evals/reports/
+.playwright-mcp/
+design/actual/
+design/diff/
+.claude/memory/user.md

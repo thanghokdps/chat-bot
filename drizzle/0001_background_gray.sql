@@ -1,0 +1,1 @@
+ALTER TABLE "user_settings" ALTER COLUMN "background" SET DEFAULT 'gray';

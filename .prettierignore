@@ -1,0 +1,9 @@
+.next
+node_modules
+drizzle
+pnpm-lock.yaml
+design
+evals/reports
+.playwright-mcp
+next-env.d.ts
+.claude

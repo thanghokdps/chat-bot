@@ -1,0 +1,72 @@
+# ADR 0001 — Agent architecture
+
+Status: accepted · Date: 2026-10-22
+
+## Problem
+
+Users: anyone who signs up for CHAT A.I+ · Problem: one place to learn, discover and automate — an open-ended assistant for questions, explanations and how-tos (P1).
+
+| Task (P2)               | Example message                                                         | Agent          | Tool(s) |
+| ----------------------- | ----------------------------------------------------------------------- | -------------- | ------- |
+| Step-by-step how-to     | "Create a chatbot gpt using python language what will be step for that" | chat-assistant | none    |
+| Follow-up on the thread | "What is use of that chatbot ?"                                         | chat-assistant | none    |
+| Explain a concept       | "Explain quantum computing in simple terms"                             | chat-assistant | none    |
+| Plan a build            | "How to make a search engine platform like google"                      | chat-assistant | none    |
+
+Systems (P3): Postgres (app-owned) → conversations, messages, feedback, settings written by app code, not by the agent · OpenAI API → model calls.
+Out of scope (P4): harmful requests (refused politely); claiming knowledge of recent events it cannot have; revealing the system prompt.
+Good answer means: on-topic, structured like the design (numbered steps, bold lead-ins), uses thread context, states its limits.
+
+Design: Figma `ZIYKCxqRlpYMY98YFbMseb` (page "Screens") → built with `/agent-design-ui` after the scaffold. Data model: `docs/erd.md`.
+
+## Architecture card
+
+Layout: L1 single Next.js app · Shape: A (`createAgent` + CopilotRuntime v2) · Host: Next.js, Node runtime · Transport: AG-UI via `app/api/copilotkit` · Clients: web (React, CopilotKit v2) · Tests: `*.test.ts(x)` beside the file (existing layout, kept) · Viewports: 360px and up; phone, tablet, desktop (checked to 2560)
+Agents: `chat-assistant` → general Q&A → 0 tools
+Writes/HITL: none from the agent; app code writes conversations, messages, feedback
+Identity: Better Auth session cookie (HttpOnly, Secure, SameSite) → verified in the route → user id injected as trusted context; never a model argument
+Checkpoints: run-scoped · History: `messages` tree is the source of truth · Memory: none
+Models: OpenAI flagship → `-mini` fallback (429/5xx only); `-mini`/`-nano` for titles and eval judge; Pro → higher tier. IDs in env, verified against `/v1/models` at scaffold
+Tracing: Langfuse behind `TRACING_ENABLED`, PII masked, user ids HMAC-hashed
+Evals: must-pass — design prompts structured, follow-up context, limitations honesty, harmful refusal, identity/system-prompt; cheap-model judge; CI on `src/agent/**` and `evals/**` with a baseline gate
+
+## Decisions
+
+| #   | Decision                                                                                                                                                 | Reason                                                                                | Ladder rung                    |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------ |
+| 1   | Shape A, single agent, no tools                                                                                                                          | open-ended Q&A has one scope; Node host runs CopilotRuntime                           | L0                             |
+| 2   | L1 single app                                                                                                                                            | one web client, one deploy                                                            | —                              |
+| 3   | Better Auth + Drizzle on Postgres                                                                                                                        | email/password + Google + Apple with tables in our DB                                 | —                              |
+| 4   | History in `messages` tree, run-scoped checkpoints                                                                                                       | edit/regenerate branch; one store, one delete path                                    | L1                             |
+| 5   | OpenAI only, flagship → mini fallback                                                                                                                    | user's provider; fallback covers rate limits                                          | L1 (`modelFallbackMiddleware`) |
+| 6   | Daily quota per plan from `plan_limits`, counted from `messages`                                                                                         | gives "Upgrade to Pro" meaning; caps spend                                            | app code                       |
+| 7   | One run per conversation via `conversations.active_run_id`; 409 on overlap                                                                               | no interleaved streams from double send / regenerate                                  | app code                       |
+| 8   | Client disconnect aborts the model call, saves partial as `stopped`                                                                                      | no billed tokens nobody sees                                                          | L0 (abort signal)              |
+| 9   | Error after fallback saves `status = error`, fixed message, not counted in quota                                                                         | user sees a deterministic retry path                                                  | app code                       |
+| 10  | Cleared conversations hard-deleted after 30 days                                                                                                         | Clear All reversible for a grace period                                               | app code                       |
+| 11  | Runtime agent is CopilotKit `BuiltInAgent` in custom-factory mode, built per request around the verified user id                                         | in-process, no LangGraph server; the factory yields AG-UI events from `runTurn`       | L1                             |
+| 12  | Fallback via own `wrapModelCall` middleware instead of stock `modelFallbackMiddleware`                                                                   | stock falls back on every error incl. 400 (`models.test.ts`)                          | L2                             |
+| 13  | Busy conversation answered with a CUSTOM `notice` event (`run_in_progress`), not HTTP 409                                                                | the runtime owns the HTTP response once a run starts; the client shows the fixed copy | app code                       |
+| 14  | Client sends only the newest message (`messageFilter`); server rebuilds history from `messages`                                                          | the client cannot inject or rewrite history                                           | L1                             |
+| 15  | Chat UI headless (`useAgent`)                                                                                                                            | design layout not reachable with `CopilotChat` slots (see `docs/design/ui-map.md`)    | L3                             |
+| 16  | App tree per the kit rule `agent-code-structure`: `features/<feature>`, `components/ui`, `server/<aggregate>`, `styles/tokens.css`, `dev/`               | a file's folder says who owns it; fixtures cannot leak into app code (lint-enforced)  | —                              |
+| 17  | `service.ts` only where a route composes repositories (`conversations`, `plans`); other routes call the repository                                       | a pass-through service per aggregate adds a layer with no logic                       | —                              |
+| 18  | Tests stay beside the file (`*.test.ts(x)`); shared helpers in `src/test-utils/`                                                                         | the repo's existing layout wins over adding `__tests__/`                              | —                              |
+| 19  | Every colour, type size, radius, shadow and viewport-scaled size is a token in `src/styles/tokens.css`; px spacing uses the 4px scale (`mt-11.5` = 46px) | no raw hex/px in components, and the 1920 frames stay pixel-identical                 | L0                             |
+| 20  | Import order through `eslint-plugin-import-x`                                                                                                            | `eslint-plugin-import` 2.32 (bundled by Next) crashes in `import/order` on ESLint 10  | —                              |
+
+## Rejected alternatives
+
+- Shape B / edge host — Node host chosen; no edge constraint.
+- L2 monorepo — no second client or separate deploy.
+- Auth.js v5 — discourages credentials; more custom email/password code. Clerk — users outside our DB, paid dependency.
+- Thread-scoped LangGraph checkpoints as history — linear state fights edit/regenerate branching; two stores to delete from.
+- Cross-provider fallback — user chose OpenAI only.
+- Stop button — not in the design.
+
+## Revisit when
+
+- A tool that reads or writes user data is added → `/agent-tool`, writes via `/agent-hitl`.
+- A second client (mobile, Slack) appears → move to L2.
+- Stripe checkout is built → `subscriptions` becomes provider-driven.
+- Single-provider outages hurt → add a second provider to the fallback chain.

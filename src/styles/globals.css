@@ -1,0 +1,168 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+:root {
+  --bg-gray: #f0f1f2;
+  --bg-blue: #f3f7fb;
+  --bg-pink: #fceae7;
+  --bg-yellow: #f5eec9;
+  --bg-green: #edf5d8;
+  --page-bg: var(--bg-gray);
+}
+
+[data-background="blue"] {
+  --page-bg: var(--bg-blue);
+}
+[data-background="pink"] {
+  --page-bg: var(--bg-pink);
+}
+[data-background="yellow"] {
+  --page-bg: var(--bg-yellow);
+}
+[data-background="green"] {
+  --page-bg: var(--bg-green);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--page-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.logo-type {
+  letter-spacing: 0.2em;
+  font-weight: 500;
+}
+
+/* The design shows the list fading out above Settings instead of a scrollbar. */
+.sidebar-list {
+  scrollbar-width: none;
+  mask-image: linear-gradient(to bottom, black calc(100% - 80px), rgba(0, 0, 0, 0.25) calc(100% - 20px), transparent);
+}
+.sidebar-list::-webkit-scrollbar {
+  display: none;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  display: none;
+}
+
+/* Content scrolls under the floating composer and fades out, as in the chat frames. */
+.thread-fade {
+  scrollbar-width: none;
+  mask-image: linear-gradient(to bottom, black calc(100% - 170px), transparent calc(100% - 90px));
+}
+
+.answer-markdown p {
+  margin: 0 0 20px;
+}
+.answer-markdown ol,
+.answer-markdown ul {
+  margin: 0 0 20px;
+  padding-left: 26px;
+}
+.answer-markdown ol {
+  list-style: decimal;
+}
+.answer-markdown ul {
+  list-style: disc;
+}
+.answer-markdown li {
+  padding-left: 0;
+  margin-bottom: 20px;
+}
+.answer-markdown strong {
+  font-weight: 500;
+  color: var(--color-ink);
+}
+.answer-markdown pre {
+  background: #0f1115;
+  color: #e6e6e6;
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-size: 14px;
+  margin: 0 0 14px;
+}
+.answer-markdown code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+}
+.answer-markdown :not(pre) > code {
+  background: rgba(86, 97, 246, 0.08);
+  border-radius: 6px;
+  padding: 1px 5px;
+}
+.answer-markdown a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+.answer-markdown > :last-child {
+  margin-bottom: 0;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.streaming-caret::after {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 18px;
+  margin-left: 2px;
+  vertical-align: -3px;
+  background: var(--color-primary);
+  border-radius: 2px;
+  animation: caret-blink 1s steps(1) infinite;
+}
+
+@keyframes dot-pulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Phones: the composer sits lower and is shorter, so the fade starts later. */
+@media (max-width: 1023px) {
+  .thread-fade {
+    mask-image: linear-gradient(to bottom, black calc(100% - 110px), transparent calc(100% - 56px));
+  }
+}
+
+/* Long URLs, words and tables must not widen the column on narrow screens. */
+.answer-markdown {
+  overflow-wrap: anywhere;
+}
+.answer-markdown table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+.answer-markdown th,
+.answer-markdown td {
+  border: 1px solid #dfe3e8;
+  padding: 6px 10px;
+}
