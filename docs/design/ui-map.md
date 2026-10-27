@@ -48,12 +48,12 @@ Components use token names only; `grep -rnE '\[#[0-9a-fA-F]{3,8}\]' src` finds n
 | `#f2f2f2` sidebar dividers · `#efefef` pill borders · `#e5e5e5` social buttons, swatches · `#dfe3e8` exchange divider · `#c9ccd0` toolbar rule | `--color-divider` · `--color-line` · `--color-hairline` · `--color-separator` · `--color-toolbar-rule` |
 | `#fbfbfc` suggestion cards · `#191919` category tiles · `#f5f5f5` inputs | `--color-card` · `--color-tile` · `--color-field` |
 | page backgrounds `#f0f1f2` `#f3f7fb` `#fceae7` `#f5eec9` `#edf5d8` | `--bg-*` → runtime `--page-bg` → `bg-page` (from `user_settings.background`) |
-| type sizes 12–44px; answer 17.5px; consent 13.5px | `--text-12` … `--text-44`, `--text-answer`, `--text-legal` (size only; line-height stays per element) |
+| type sizes 12–44px; answer 17.5px | `--text-12` … `--text-44`, `--text-answer` (size only; line-height stays per element) |
 | radius: sidebar 28px · cards 12px · inputs 10px · notice 18px · Upgrade tab 26px | `--radius-panel` `--radius-card` `--radius-field` `--radius-notice` `--radius-tab` |
 | shadows: card hover · composer · send ring | `--shadow-card-hover` `--shadow-composer` `--shadow-send` |
 | sidebar 348px (300px at 1024–1279) · drawer · Upgrade tab height · welcome/auth top spacing | `--spacing-sidebar` `--spacing-sidebar-lg` `--spacing-drawer` `--spacing-upgrade-tab` `--spacing-welcome-top` `--spacing-welcome-gap` `--spacing-auth-top` (viewport-scaled, max = frame value) |
 | other px spacing | Tailwind's 4px scale: `mt-11.5` = 46px, `px-7.25` = 29px |
-| Font: geometric sans, single-storey a/g | **Outfit** via `next/font` (*estimated*) |
+| Font: geometric sans, single-storey a/g | **Outfit** via `next/font` (calibrated against 20 candidates, see `docs/demo/design-diff/README.md`) |
 
 ## Element ladder
 
@@ -76,14 +76,14 @@ Raster art cropped from the frames into `public/`: sign-up hero (left half), sug
 
 ## Comparison (Step 5)
 
-`/design-states?state=<name>` (dev only) renders every state from `src/components/fixtures.ts`. Shots at 1920×1080, `deviceScaleFactor: 1`, compared with `compare-shots.py` (3% threshold, tolerance 24):
+`/design-states?state=<name>` (dev only) renders every state from `src/components/fixtures.ts`. Shots at 1920×1080, `deviceScaleFactor: 1`, compared with `compare-shots.py`. Dynamic text (answer, prompt, agent-set titles, suggestion copy) is masked by `design/frames/masks.json` and checked for font and style instead by `design/frames/text-styles.json`:
 
-| State | Diff | Result | Remaining difference |
+| State | Masked, 2% | Unmasked, 3% | Remaining difference |
 |---|---|---|---|
-| sign-up | 1.4% | PASS | — |
-| welcome | 3.2% | FAIL (0.2 over) | glyph shapes in the 22px card titles; layout boxes match to ±2px |
-| conversation-blue / pink / yellow / green | 6.9% | FAIL | glyph shapes only: line breaks, list indents, toolbar and divider positions match; Outfit is an estimate of the raster's font, so every letter of a 900px text block differs by a few pixels |
+| sign-up | 1.3% PASS | 1.3% PASS | subtitle 10px wider; offsets ≤3px |
+| welcome | 1.6% PASS | 3.1% | glyph shapes in masked card copy; heading 10px right of the design (the design's heading is not centred on the logo pill) |
+| conversation-blue / pink / yellow / green | 1.3% PASS | 6.8% | glyph shapes of the masked answer text only |
 
-**Pending owner acceptance:** the conversation and welcome differences come from the font. Supplying the real font (or a layered Figma file) closes them; no layout change is needed.
+Text styles: 2/2 states pass (8 selectors). Before/after images and the method: `docs/demo/design-diff/README.md`.
 
-Calibrated from the rasters: answer text 17.5px/28px with 0.005em tracking, prompt line 16px, welcome headline 44px.
+Calibrated from the rasters: answer text 17.5px/28px with 0.005em tracking, prompt line 16px, welcome headline 44px, labels and switch line 16px, consent and card prompts 14px.

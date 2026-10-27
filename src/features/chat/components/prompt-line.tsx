@@ -1,6 +1,6 @@
 "use client";
 
-import { PenLine } from "lucide-react";
+import { SquarePen } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,7 @@ export function PromptLine({
             aria-label="Edit prompt"
             className="-mt-1.5 shrink-0 disabled:opacity-40"
           >
-            <PenLine size={ICON_SIZE.md} strokeWidth={1.6} aria-hidden />
+            <SquarePen size={ICON_SIZE.lg} strokeWidth={1.6} aria-hidden />
           </Button>
         </>
       ) : (

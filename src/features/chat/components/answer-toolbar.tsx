@@ -24,15 +24,15 @@ export function AnswerToolbar({
   const rate = (r: 1 | -1) => onRate(answer.id, answer.rating === r ? null : r);
 
   return (
-    <div className="mt-4.5 flex flex-wrap items-center justify-between gap-y-2">
+    <div className="mt-5.25 flex flex-wrap items-center justify-between gap-y-2">
       <div className="flex items-center gap-2.5">
-        <div className="flex h-8.5 items-center gap-2.5 rounded-full bg-surface px-3 text-icon">
+        <div className="flex h-8.5 items-center gap-3 rounded-full bg-surface px-3 text-icon">
           <Toggle aria-label="Good answer" pressed={answer.rating === 1} onPressedChange={() => rate(1)}>
-            <ThumbsUp size={ICON_SIZE.sm} strokeWidth={1.6} aria-hidden />
+            <ThumbsUp size={ICON_SIZE.md} strokeWidth={1.6} aria-hidden />
           </Toggle>
           <Separator orientation="vertical" className="bg-toolbar-rule data-[orientation=vertical]:h-3.5" />
           <Toggle aria-label="Bad answer" pressed={answer.rating === -1} onPressedChange={() => rate(-1)}>
-            <ThumbsDown size={ICON_SIZE.sm} strokeWidth={1.6} aria-hidden />
+            <ThumbsDown size={ICON_SIZE.md} strokeWidth={1.6} aria-hidden />
           </Toggle>
           <Separator orientation="vertical" className="bg-toolbar-rule data-[orientation=vertical]:h-3.5" />
           <Button
@@ -45,7 +45,7 @@ export function AnswerToolbar({
               setTimeout(() => setIsCopied(false), 1500);
             }}
           >
-            <Copy size={ICON_SIZE.sm} strokeWidth={1.6} aria-hidden />
+            <Copy size={ICON_SIZE.md} strokeWidth={1.6} aria-hidden />
           </Button>
         </div>
         <span className="flex size-8.5 items-center justify-center rounded-full bg-surface text-icon" aria-hidden>
